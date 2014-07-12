@@ -2,7 +2,7 @@
 //
 // Package:    L1Trigger/Layer1
 // Class:      Layer1
-// 
+//
 /**\class Layer1 Layer1.cc L1Trigger/Layer1/plugins/Layer1.cc
 
  Description: [one line class summary]
@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Austin Belknap
+// Original Author:  D. Austin Belknap, dabelknap@wisc.edu
 //         Created:  Sat, 12 Jul 2014 14:21:44 GMT
 //
 //
@@ -19,6 +19,7 @@
 
 // system include files
 #include <memory>
+#include <cstdint>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -28,6 +29,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 
 //
@@ -45,7 +49,10 @@ class Layer1 : public edm::EDProducer {
       virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
-      
+      edm::InputTag ecalDigisLabel;
+      edm::InputTag hcalDigisLabel;
+
+
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -66,7 +73,9 @@ class Layer1 : public edm::EDProducer {
 //
 // constructors and destructor
 //
-Layer1::Layer1(const edm::ParameterSet& iConfig)
+Layer1::Layer1(const edm::ParameterSet& iConfig) :
+  ecalDigisLabel(iConfig.getParameter<edm::InputTag>("ecalDigisLabel")),
+  hcalDigisLabel(iConfig.getParameter<edm::InputTag>("hcalDigisLabel"))
 {
    //register your products
 /* Examples
@@ -74,18 +83,24 @@ Layer1::Layer1(const edm::ParameterSet& iConfig)
 
    //if do put with a label
    produces<ExampleData2>("label");
- 
+
    //if you want to put into the Run
    produces<ExampleData2,InRun>();
 */
    //now do what ever other initialization is needed
-  
+
+  produces<std::vector<uint8_t> >("link");
+  produces<std::vector<uint8_t> >("ieta");
+  produces<std::vector<uint8_t> >("iphi");
+  produces<std::vector<uint16_t> >("HcalEnergy");
+  produces<std::vector<uint16_t> >("EcalEnergy");
+  produces<std::vector<bool> >("isHF");
 }
 
 
 Layer1::~Layer1()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -106,7 +121,7 @@ Layer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);
 
-   //Use the ExampleData to create an ExampleData2 which 
+   //Use the ExampleData to create an ExampleData2 which
    // is put into the Event
    std::auto_ptr<ExampleData2> pOut(new ExampleData2(*pIn));
    iEvent.put(pOut);
@@ -117,17 +132,17 @@ Layer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
 */
- 
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 Layer1::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 Layer1::endJob() {
 }
 
@@ -138,7 +153,7 @@ Layer1::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
- 
+
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
@@ -146,7 +161,7 @@ Layer1::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
- 
+
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
@@ -154,7 +169,7 @@ Layer1::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
 {
 }
 */
- 
+
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
@@ -162,7 +177,7 @@ Layer1::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
- 
+
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 Layer1::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
